@@ -1,23 +1,34 @@
+apiVersion: blueprints.cloud.google.com/v1alpha1
+kind: BlueprintMetadata
 metadata:
-  displayName: Standalone CAS (Agent Cloud)
-  description: A version of the Certificate Authority Service module compatible with Terraform 1.5.7 for Agent Cloud demos.
+  name: certificate-authority-service-display
+  annotations:
+    config.kubernetes.io/local-config: "true"
 spec:
-  input:
-    variables:
-      project_id:
-        name: Project ID
-        hint: The Google Cloud project where the CA pool will reside.
-      location:
-        name: Region
-        hint: e.g., us-central1. Must match your SWP region.
-      ca_pool_config:
-        name: CA Pool Configuration
-        group: configuration
-      ca_configs:
-        name: Certificate Authority Definitions
-        group: configuration
-  output:
-    variables:
-      ca_pool_id:
-        name: CA Pool ID
-        hint: Use this to connect to the Secure Web Proxy TLS Inspection Policy.
+  info:
+    title: Standalone CAS (Agent Cloud)
+    source:
+      repo: https://github.com/vandnagarggoogle/terraform-google-cas.git
+      sourceType: git
+      dir: /modules/standalone-cas
+  ui:
+    input:
+      variables:
+        project_id:
+          name: project_id
+          title: Project ID
+          subtext: The Google Cloud project where the CA pool will reside.
+        location:
+          name: location
+          title: Region
+          subtext: e.g., us-central1. Must match your SWP region.
+        ca_pool_config:
+          name: ca_pool_config
+          title: CA Pool Configuration
+        ca_configs:
+          name: ca_configs
+          title: Certificate Authority Definitions
+    runtime:
+      outputs:
+        ca_pool_id:
+          visibility: VISIBILITY_ROOT
