@@ -1,31 +1,7 @@
-/**
- * Copyright 2026 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-variable "project_id" {
-  description = "The project ID to host the CAS resources."
-  type        = string
-}
-
-variable "location" {
-  description = "The location of the CAs (e.g., us-central1). Must match your SWP region."
-  type        = string
-}
+variable "project_id" { type = string }
+variable "location"   { type = string }
 
 variable "ca_pool_config" {
-  description = "The CA pool config. Provide 'create_pool' to make a new one or 'use_pool' for an existing one."
   type = object({
     create_pool = optional(object({
       name            = string
@@ -38,7 +14,6 @@ variable "ca_pool_config" {
 }
 
 variable "ca_configs" {
-  description = "The CA configurations. Keys are the CA IDs."
   type = map(object({
     is_ca                                  = optional(bool, true)
     deletion_protection                    = optional(bool, false)
@@ -47,14 +22,14 @@ variable "ca_configs" {
     gcs_bucket                             = optional(string)
     labels                                 = optional(map(string), {})
     subject = object({
-      common_name         = string
-      organization        = string
-      country_code        = optional(string)
-      locality            = optional(string)
+      common_name  = string
+      organization = string
+      country_code = optional(string)
+      locality     = optional(string)
+      postal_code  = optional(string)
+      province     = optional(string)
+      street_address = optional(string)
       organizational_unit = optional(string)
-      postal_code         = optional(string)
-      province            = optional(string)
-      street_address      = optional(string)
     })
     subject_alt_name = optional(object({
       dns_names       = optional(list(string))
@@ -90,8 +65,8 @@ variable "ca_configs" {
   }))
   default = {}
 }
+
 variable "iam" {
-  description = "Map of IAM bindings for the CA pool. Use to grant SWP permission to use the pool."
   type = map(object({
     role   = string
     member = string
