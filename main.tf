@@ -1,17 +1,5 @@
 /**
  * Copyright 2026 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 locals {
@@ -19,20 +7,36 @@ locals {
   ca_pool_id = (
     var.ca_pool_config.use_pool != null
     ? var.ca_pool_config.use_pool.id
-    : google_privateca_ca_pool.default[0].id
+    : try(google_privateca_ca_pool.default[0].id, null)
   )
 }
 
-# 1. Create the CA Pool (if create_pool is defined)
+# 1. Enable the Private CA API
+resource "google_project_service" "privateca_api" {
+  project            = var.project_id 
+  service            = "privateca.googleapis.com"
+  disable_on_destroy = false
+}
+
+# 2. Handle API propagation delay (Standard best practice)
+resource "time_sleep" "wait_for_privateca_api" {
+  depends_on      = [google_project_service.privateca_api]
+  create_duration = "30s"
+}
+
+# 3. Create the CA Pool (Single block with dependency)
 resource "google_privateca_ca_pool" "default" {
   count    = var.ca_pool_config.create_pool != null ? 1 : 0
   name     = var.ca_pool_config.create_pool.name
   location = var.location
   project  = var.project_id
   tier     = var.ca_pool_config.create_pool.enterprise_tier ? "ENTERPRISE" : "DEVOPS"
+
+  # Wait for the API to be fully functional
+  depends_on = [time_sleep.wait_for_privateca_api]
 }
 
-# 2. Create CAs based on the ca_configs map
+# 4. Create CAs based on the ca_configs map
 resource "google_privateca_certificate_authority" "default" {
   for_each = var.ca_configs
 
@@ -102,7 +106,6 @@ resource "google_privateca_certificate_authority" "default" {
     cloud_kms_key_version = each.value.key_spec.kms_key_id
   }
 
-  # Add logic for subordinates if configured
   dynamic "subordinate_config" {
     for_each = each.value.subordinate_config != null ? [1] : []
     content {
@@ -115,14 +118,18 @@ resource "google_privateca_certificate_authority" "default" {
       }
     }
   }
+
+  # Ensure the CA also waits for the API
+  depends_on = [time_sleep.wait_for_privateca_api]
 }
-# 4. IAM Bindings for the CA Pool (The "IAM Manager" logic)
+
+# 5. IAM Bindings for the CA Pool
 resource "google_privateca_ca_pool_iam_member" "default" {
   for_each = var.iam
   ca_pool  = local.ca_pool_id
   role     = each.value.role
   member   = each.value.member
   
-  # Ensure the pool is created before trying to assign roles
+  # This correctly waits for the pool creation
   depends_on = [google_privateca_ca_pool.default]
 }
