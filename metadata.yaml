@@ -1,3 +1,17 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 apiVersion: blueprints.cloud.google.com/v1alpha1
 kind: BlueprintMetadata
 metadata:
@@ -6,27 +20,128 @@ metadata:
     config.kubernetes.io/local-config: "true"
 spec:
   info:
-    title: Standalone CAS (Agent Cloud)
-    version: 1.0.3
+    title: terraform-google-cas
     source:
       repo: https://github.com/vandnagarggoogle/terraform-google-cas.git
+      version: 1.0.4
       sourceType: git
-      dir: /modules/standalone-cas
     actuationTool:
       flavor: Terraform
       version: ">= 1.5.7"
+    description:
+      tagline: This is an auto-generated module.
+      detailed: "This module was generated from "
+      preDeploy: To deploy this blueprint you must have an active billing account and billing permissions.
+    icon: assets/icon.png
+    costEstimate:
+      description: Blueprint cost details
+      url: https://cloud.google.com/products/calculator?id=02fb0c45-cc29-4567-8cc6-f72ac9024add
+  content:
+    architecture:
+      diagramUrl: https://www.link-to-architecture-diagram.com
+      description:
+        - 1. Architecture description step no. 1
+        - 2. Architecture description step no. 2
+        - 3. Architecture description step no. N
+    documentation:
+      - title: Hosting a Static Website
+        url: https://cloud.google.com/storage/docs/hosting-static-website
+    examples:
+      - name: simple_example
+        location: examples/simple_example
   interfaces:
     variables:
       - name: project_id
+        description: The project ID to host the CAS resources.
         varType: string
         required: true
       - name: location
+        description: The location of the CAs (e.g., us-central1). Must match your SWP region.
         varType: string
         required: true
       - name: ca_pool_config
-        varType: object
+        description: The CA pool config. Provide 'create_pool' to make a new one or 'use_pool' for an existing one.
+        varType: |-
+          object({
+              create_pool = optional(object({
+                name            = string
+                enterprise_tier = optional(bool, false)
+              }))
+              use_pool = optional(object({
+                id = string
+              }))
+            })
+        required: true
       - name: ca_configs
-        varType: map
+        description: The CA configurations. Keys are the CA IDs.
+        varType: |-
+          map(object({
+              is_ca                                  = optional(bool, true)
+              deletion_protection                    = optional(bool, false)
+              skip_grace_period                      = optional(bool, true)
+              ignore_active_certificates_on_deletion = optional(bool, false)
+              gcs_bucket                             = optional(string)
+              labels                                 = optional(map(string), {})
+              subject = object({
+                common_name         = string
+                organization        = string
+                country_code        = optional(string)
+                locality            = optional(string)
+                organizational_unit = optional(string)
+                postal_code         = optional(string)
+                province            = optional(string)
+                street_address      = optional(string)
+              })
+              subject_alt_name = optional(object({
+                dns_names       = optional(list(string))
+                email_addresses = optional(list(string))
+                ip_addresses    = optional(list(string))
+                uris            = optional(list(string))
+              }))
+              key_usage = object({
+                cert_sign          = optional(bool, true)
+                crl_sign           = optional(bool, true)
+                server_auth        = optional(bool, true)
+                client_auth        = optional(bool, false)
+                code_signing       = optional(bool, false)
+                content_commitment = optional(bool, false)
+                data_encipherment  = optional(bool, false)
+                decipher_only      = optional(bool, false)
+                digital_signature  = optional(bool, false)
+                email_protection   = optional(bool, false)
+                encipher_only      = optional(bool, false)
+                key_agreement      = optional(bool, false)
+                key_encipherment   = optional(bool, true)
+                ocsp_signing       = optional(bool, false)
+                time_stamping      = optional(bool, false)
+              })
+              key_spec = object({
+                algorithm  = optional(string, "RSA_PKCS1_2048_SHA256")
+                kms_key_id = optional(string)
+              })
+              subordinate_config = optional(object({
+                root_ca_id               = string
+                pem_issuer_certificates = optional(list(string))
+              }))
+            }))
+        defaultValue: {}
     outputs:
+      - name: ca_ids
+        description: Map of CA IDs created.
+      - name: ca_pool
+        description: The CA pool resource object.
       - name: ca_pool_id
+        description: The ID of the CA Pool.
         type: string
+  requirements:
+    roles:
+      - level: Project
+        roles:
+          - roles/owner
+    services:
+      - cloudresourcemanager.googleapis.com
+      - storage-api.googleapis.com
+      - serviceusage.googleapis.com
+    providerVersions:
+      - source: hashicorp/google
+        version: ">= 5.0"
