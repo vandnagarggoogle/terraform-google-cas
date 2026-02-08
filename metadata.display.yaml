@@ -20,6 +20,10 @@ spec:
         ca_configs:
           name: ca_configs
           title: Certificate Authority Definitions
+        iam:
+          name: IAM Permissions
+          title: CA Pool Access Control
+          subtext: Use this to grant 'roles/privateca.certificateManager' to your SWP service account.
     runtime:
       outputs:
         ca_pool_id:

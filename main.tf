@@ -116,3 +116,13 @@ resource "google_privateca_certificate_authority" "default" {
     }
   }
 }
+# 4. IAM Bindings for the CA Pool (The "IAM Manager" logic)
+resource "google_privateca_ca_pool_iam_member" "default" {
+  for_each = var.iam
+  ca_pool  = local.ca_pool_id
+  role     = each.value.role
+  member   = each.value.member
+  
+  # Ensure the pool is created before trying to assign roles
+  depends_on = [google_privateca_ca_pool.default]
+}

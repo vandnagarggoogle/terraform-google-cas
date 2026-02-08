@@ -56,6 +56,13 @@ spec:
             })
           }))
         required: false
+      - name: iam
+        varType: |-
+          map(object({
+            role   = string
+            member = string
+          }))
+        required: false
     outputs:
       - name: ca_pool_id
         type: string

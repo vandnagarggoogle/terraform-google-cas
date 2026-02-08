@@ -90,3 +90,11 @@ variable "ca_configs" {
   }))
   default = {}
 }
+variable "iam" {
+  description = "Map of IAM bindings for the CA pool. Use to grant SWP permission to use the pool."
+  type = map(object({
+    role   = string
+    member = string
+  }))
+  default = {}
+}
