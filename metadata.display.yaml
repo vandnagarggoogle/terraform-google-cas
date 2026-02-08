@@ -1,0 +1,23 @@
+metadata:
+  displayName: Standalone CAS (Agent Cloud)
+  description: A version of the Certificate Authority Service module compatible with Terraform 1.5.7 for Agent Cloud demos.
+spec:
+  input:
+    variables:
+      project_id:
+        name: Project ID
+        hint: The Google Cloud project where the CA pool will reside.
+      location:
+        name: Region
+        hint: e.g., us-central1. Must match your SWP region.
+      ca_pool_config:
+        name: CA Pool Configuration
+        group: configuration
+      ca_configs:
+        name: Certificate Authority Definitions
+        group: configuration
+  output:
+    variables:
+      ca_pool_id:
+        name: CA Pool ID
+        hint: Use this to connect to the Secure Web Proxy TLS Inspection Policy.
