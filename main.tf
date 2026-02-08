@@ -7,7 +7,7 @@ locals {
   ca_pool_id = (
     var.ca_pool_config.use_pool != null
     ? var.ca_pool_config.use_pool.id
-    : try(google_privateca_ca_pool.default[0].id, null)
+    : try(google_privateca_ca_pool.default[0].name, null)
   )
 }
 
