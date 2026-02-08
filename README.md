@@ -52,14 +52,18 @@ Functional examples are included in the
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| bucket\_name | The name of the bucket to create | `string` | n/a | yes |
-| project\_id | The project ID to deploy to | `string` | n/a | yes |
+| ca\_configs | The CA configurations. Keys are the CA IDs. | <pre>map(object({<br>    is_ca                                  = optional(bool, true)<br>    deletion_protection                    = optional(bool, false)<br>    skip_grace_period                      = optional(bool, true)<br>    ignore_active_certificates_on_deletion = optional(bool, false)<br>    gcs_bucket                             = optional(string)<br>    labels                                 = optional(map(string), {})<br>    subject = object({<br>      common_name         = string<br>      organization        = string<br>      country_code        = optional(string)<br>      locality            = optional(string)<br>      organizational_unit = optional(string)<br>      postal_code         = optional(string)<br>      province            = optional(string)<br>      street_address      = optional(string)<br>    })<br>    subject_alt_name = optional(object({<br>      dns_names       = optional(list(string))<br>      email_addresses = optional(list(string))<br>      ip_addresses    = optional(list(string))<br>      uris            = optional(list(string))<br>    }))<br>    key_usage = object({<br>      cert_sign          = optional(bool, true)<br>      crl_sign           = optional(bool, true)<br>      server_auth        = optional(bool, true)<br>      client_auth        = optional(bool, false)<br>      code_signing       = optional(bool, false)<br>      content_commitment = optional(bool, false)<br>      data_encipherment  = optional(bool, false)<br>      decipher_only      = optional(bool, false)<br>      digital_signature  = optional(bool, false)<br>      email_protection   = optional(bool, false)<br>      encipher_only      = optional(bool, false)<br>      key_agreement      = optional(bool, false)<br>      key_encipherment   = optional(bool, true)<br>      ocsp_signing       = optional(bool, false)<br>      time_stamping      = optional(bool, false)<br>    })<br>    key_spec = object({<br>      algorithm  = optional(string, "RSA_PKCS1_2048_SHA256")<br>      kms_key_id = optional(string)<br>    })<br>    subordinate_config = optional(object({<br>      root_ca_id               = string<br>      pem_issuer_certificates = optional(list(string))<br>    }))<br>  }))</pre> | `{}` | no |
+| ca\_pool\_config | The CA pool config. Provide 'create\_pool' to make a new one or 'use\_pool' for an existing one. | <pre>object({<br>    create_pool = optional(object({<br>      name            = string<br>      enterprise_tier = optional(bool, false)<br>    }))<br>    use_pool = optional(object({<br>      id = string<br>    }))<br>  })</pre> | n/a | yes |
+| location | The location of the CAs (e.g., us-central1). Must match your SWP region. | `string` | n/a | yes |
+| project\_id | The project ID to host the CAS resources. | `string` | n/a | yes |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| bucket\_name | Name of the bucket |
+| ca\_ids | Map of CA IDs created. |
+| ca\_pool | The CA pool resource object. |
+| ca\_pool\_id | The ID of the CA Pool. |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
