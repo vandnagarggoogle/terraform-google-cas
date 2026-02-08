@@ -116,9 +116,3 @@ resource "google_privateca_certificate_authority" "default" {
     }
   }
 }
-
-# 3. Output the ID for the SWP to consume
-output "ca_pool_id" {
-  value       = local.ca_pool_id
-  description = "The ID of the CA Pool."
-}
