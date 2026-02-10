@@ -14,12 +14,27 @@
  * limitations under the License.
  */
 
-output "ca_pool_id" {
-  description = "The FULL ID of the CA Pool for the SWP."
-  value       = local.ca_pool_id
+output "ca_chains" {
+  description = "The CA chains in PEM format."
+  value       = { for k, v in google_privateca_certificate_authority.default : k => v.pem_ca_certificates }
 }
 
 output "ca_ids" {
-  description = "Map of CA IDs created."
+  description = "The CA ids."
   value       = { for k, v in google_privateca_certificate_authority.default : k => v.id }
+}
+
+output "ca_pool" {
+  description = "The CA pool resource."
+  value       = google_privateca_ca_pool.default
+}
+
+output "ca_pool_id" {
+  description = "The CA pool resource ID."
+  value       = google_privateca_ca_pool.default.id
+}
+
+output "cas" {
+  description = "The Certificate Authority resources."
+  value       = google_privateca_certificate_authority.default
 }
