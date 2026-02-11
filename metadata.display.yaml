@@ -42,3 +42,13 @@ spec:
       outputs:
         ca_pool_id:
           visibility: VISIBILITY_ROOT
+        ca_chains:
+          visibility: VISIBILITY_ROOT
+        ca_ids:
+          visibility: VISIBILITY_ROOT
+        ca_pool:
+          visibility: VISIBILITY_ROOT
+        cas:
+          visibility: VISIBILITY_ROOT
+        ca_pool_name:
+          visibility: VISIBILITY_ROOT

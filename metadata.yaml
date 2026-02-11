@@ -7,7 +7,7 @@ metadata:
 spec:
   info:
     title: Standalone CAS (Agent Cloud)
-    version: 1.0.12
+    version: 1.0.13
     source:
       repo: https://github.com/vandnagarggoogle/terraform-google-cas.git
       sourceType: git
