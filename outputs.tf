@@ -16,25 +16,36 @@
 
 output "ca_chains" {
   description = "The CA chains in PEM format."
-  value       = { for k, v in google_privateca_certificate_authority.default : k => v.pem_ca_certificates }
+  value = {
+    for k, v in google_privateca_certificate_authority.default :
+    k => join("\n", v.pem_ca_certificates)
+  }
 }
 
 output "ca_ids" {
   description = "The CA ids."
-  value       = { for k, v in google_privateca_certificate_authority.default : k => v.id }
+  value = {
+    for k, v in google_privateca_certificate_authority.default :
+    k => v.id
+  }
 }
 
 output "ca_pool" {
   description = "The CA pool resource."
-  value       = google_privateca_ca_pool.default
+  # Use one() to fix the "Missing resource instance key" error
+  value       = one(google_privateca_ca_pool.default)
 }
 
 output "ca_pool_id" {
-  description = "The CA pool resource ID."
-  value       = google_privateca_ca_pool.default.id
+  description = "The FULL ID of the CA Pool for the SWP."
+  # References the local variable that handles the [0] index logic
+  value       = local.ca_pool_id
 }
 
 output "cas" {
   description = "The Certificate Authority resources."
-  value       = google_privateca_certificate_authority.default
+  value = {
+    for k, v in google_privateca_certificate_authority.default :
+    k => v
+  }
 }
