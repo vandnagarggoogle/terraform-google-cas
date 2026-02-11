@@ -49,3 +49,7 @@ output "cas" {
     k => v
   }
 }
+output "ca_pool_name" {
+  description = "CA pool name"
+  value = local.ca_pool_name
+}

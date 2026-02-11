@@ -74,3 +74,5 @@ spec:
         description: The CA pool resource.
       - name: cas
         description: The Certificate Authority resources.
+      - name: ca_pool_name
+        description: CA pool name
