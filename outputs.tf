@@ -40,6 +40,9 @@ output "ca_pool_id" {
   description = "The FULL ID of the CA Pool for the SWP."
   # References the local variable that handles the [0] index logic
   value       = local.ca_pool_id
+  depends_on = [
+    google_privateca_certificate_authority.default
+  ]
 }
 
 output "cas" {
