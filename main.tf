@@ -15,11 +15,13 @@
  */
 
 locals {
-  # 1. Short name for internal resource references (fixes the 404 error)
+  # 1. Short name for internal resource references
+  # Format "location/name" satisfies the provider's regex requirement: (?P<location>[^/]+)/(?P<ca_pool>[^/]+)
+  # This fixes the "Import id doesn't match any of the accepted formats" error.
   ca_pool_name = (
     var.ca_pool_config.create_pool != null
-    ? var.ca_pool_config.create_pool.name
-    : element(split("/", var.ca_pool_config.use_pool.id), length(split("/", var.ca_pool_config.use_pool.id)) - 1)
+    ? "${var.location}/${var.ca_pool_config.create_pool.name}"
+    : "${var.location}/${reverse(split("/", var.ca_pool_config.use_pool.id))[0]}"
   )
 
   # 2. Full ID for the external output used by SWP (fixes the 400 error)
@@ -62,7 +64,10 @@ resource "google_privateca_certificate_authority" "default" {
   certificate_authority_id = each.key
   location                 = var.location
   project                  = var.project_id
-  
+
+  # Deduce type from the presence of subordinate_config (fixes the type conflict)
+  type = each.value.subordinate_config != null ? "SUBORDINATE" : "SELF_SIGNED"
+
   deletion_protection                    = each.value.deletion_protection
   skip_grace_period                      = each.value.skip_grace_period
   ignore_active_certificates_on_deletion = each.value.ignore_active_certificates_on_deletion
@@ -124,19 +129,33 @@ resource "google_privateca_certificate_authority" "default" {
     cloud_kms_key_version = each.value.key_spec.kms_key_id
   }
 
+  # Subordinate Configuration Mapping (triggers when non-self-signed)
+  dynamic "subordinate_config" {
+    for_each = each.value.subordinate_config != null ? [1] : []
+    content {
+      certificate_authority = each.value.subordinate_config.root_ca_id
+      dynamic "pem_issuer_chain" {
+        for_each = each.value.subordinate_config.pem_issuer_certificates != null ? [1] : []
+        content {
+          pem_certificates = each.value.subordinate_config.pem_issuer_certificates
+        }
+      }
+    }
+  }
+
   depends_on = [google_privateca_ca_pool.default]
 }
 
 # --- Step 5: IAM Manager (CA Pool Access) ---
 resource "google_privateca_ca_pool_iam_member" "default" {
   for_each = var.iam
-  
+
   ca_pool  = local.ca_pool_name
   project  = var.project_id
   location = var.location
-  
-  role     = each.value.role
-  member   = each.value.member
-  
+
+  role   = each.value.role
+  member = each.value.member
+
   depends_on = [google_privateca_ca_pool.default]
 }
