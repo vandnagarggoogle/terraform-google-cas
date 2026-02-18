@@ -10,7 +10,7 @@ spec:
     source:
       repo: https://github.com/vandnagarggoogle/terraform-google-cas.git
       sourceType: git
-    version: 1.0.19
+    version: 1.0.20
     actuationTool:
       flavor: Terraform
       version: ">= 1.5.7"
@@ -127,6 +127,8 @@ spec:
         description: CA pool name
       - name: cas
         description: The Certificate Authority resources.
+      - name: ca_roots
+        description: The root CA certificates in PEM format, concatenated with newlines.
   requirements:
     roles:
       - level: Project

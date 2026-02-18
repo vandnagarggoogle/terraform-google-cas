@@ -56,3 +56,11 @@ output "ca_pool_name" {
   description = "The short, user-defined name of the CA Pool (e.g., 'my-subordinate-pool-v1')."
   value       = local.ca_pool_short_name
 }
+
+output "ca_roots" {
+  description = "The root CA certificates in PEM format, concatenated with newlines."
+  value = join("\n", distinct([
+    for v in google_privateca_certificate_authority.default :
+    element(v.pem_ca_certificates, length(v.pem_ca_certificates) - 1)
+  ]))
+}

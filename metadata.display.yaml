@@ -43,3 +43,5 @@ spec:
           visibility: VISIBILITY_ROOT
         cas:
           visibility: VISIBILITY_ROOT
+        ca_roots:
+          visibility: VISIBILITY_ROOT
