@@ -10,7 +10,7 @@ spec:
     source:
       repo: https://github.com/vandnagarggoogle/terraform-google-cas.git
       sourceType: git
-    version: 1.0.21
+    version: 1.0.22
     actuationTool:
       flavor: Terraform
       version: ">= 1.5.7"
